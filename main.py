@@ -106,7 +106,10 @@ class MyHandler(FileSystemEventHandler):
 
         file_info = parse_path(event.src_path)
         if file_info:
-            if not self.whitelisted_users or file_info.get("md5_id") in md5_user_dict:
+            if (
+                not self.whitelisted_users
+                or file_info.get("md5_id") in self.whitelisted_users
+            ):
                 handle_dat_file(file_info)
 
     def on_created(self, event):
