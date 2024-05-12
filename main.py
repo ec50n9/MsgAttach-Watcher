@@ -13,8 +13,10 @@ from decode_db import decrypt_sqlite_file
 from get_wx_info import read_info
 
 
-OUTPUT_PATH_TEMPLATE = "./output/{{self_wx_name}}/{{file_edit_time}}/{{contact_user_name}}/{{file_base_name}}.jpg"
+# 模板变量中使用的 file_edit_time 的时间格式
 EDIT_TIME_FORMAT = "%Y-%m-%d"
+# 转换好的图片的输出路径，可使用模板变量，具体格式见 README.md
+OUTPUT_PATH_TEMPLATE = "./output/{{self_wx_name}}/{{file_edit_time}}/{{contact_user_name}}/{{file_base_name}}.jpg"
 
 
 def handle_dat_file(
