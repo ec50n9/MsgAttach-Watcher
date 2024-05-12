@@ -11,8 +11,6 @@ from decode_db import decrypt_sqlite_file
 from get_wx_info import read_info
 
 
-
-
 if __name__ == "__main__":
     # 从 ./version_list.json 读取版本信息
 
