@@ -3,12 +3,41 @@ import json
 import os
 import shutil
 import sqlite3
-from typing import Dict, List
+from typing import Dict
 
-from dat_utils import handle_dat_file, parse_path, read_dat_files
+from batch_decode_dat import decode_image
 from dat_watcher import watch_dat_files
 from decode_db import decrypt_sqlite_file
 from get_wx_info import read_info
+
+
+def handle_dat_file(
+    file_info: Dict[str, str], md5_user_dict: Dict[str, Dict], wx_name: str
+):
+    """
+    处理 .dat 文件
+    """
+    file_path = file_info.get("path")
+    md5_id = file_info.get("md5_id")
+    date = file_info.get("date")
+    file_name = file_info.get("file_name")
+    last_edit_time = file_info.get("last_edit_time")
+
+    base_name, ext = os.path.splitext(file_name)
+    edit_date = last_edit_time.strftime("%Y-%m-%d")
+
+    wx_info = md5_user_dict.get(md5_id)
+    if not wx_info:
+        print(f"未找到 md5_id 为 {md5_id} 的用户信息")
+        return
+    user_name = (
+        wx_info.get("remark") or wx_info.get("nick_name") or wx_info.get("alias")
+    )
+
+    output_path = f"./output/{wx_name}/{edit_date}/{user_name}/{base_name}.jpg"
+    print(f"正在解码 {file_path}...")
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    decode_image(file_path, output_path)
 
 
 if __name__ == "__main__":
