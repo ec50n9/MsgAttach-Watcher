@@ -158,6 +158,7 @@ if __name__ == "__main__":
     micro_decrypted_db_path = os.path.join(
         os.path.abspath("."), "dbs", "decrypted_micro_msg.db"
     )
+    create_dir(micro_decrypted_db_path, just_parent=True)
     shutil.copyfile(micro_db_path, micro_decrypted_db_path)
     decrypt_sqlite_file(wx_key, micro_decrypted_db_path)
 
