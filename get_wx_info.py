@@ -235,7 +235,7 @@ def get_info_wxid(h_process):
 # 读取微信信息(account,mobile,name,mail,wxid,key)
 def read_info(
     version_list: dict = None, is_logging: bool = False, save_path: str = None
-):
+) -> dict:
     if version_list is None:
         version_list = {}
 
@@ -328,14 +328,3 @@ def read_info(
         )
         result.append(tmp_rd)
     return result
-
-
-if __name__ == "__main__":
-    # 从 ./version_list.json 读取版本信息
-
-    with open("./version_list.json", "r") as f:
-        version_list = json.load(f)
-
-    # 读取微信信息
-    result = read_info(version_list=version_list, is_logging=True)
-    print(result)
