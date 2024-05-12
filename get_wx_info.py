@@ -1,12 +1,12 @@
 import hashlib
 import hmac
-import json
 import ctypes
 import os
 import sys
 import winreg
 import psutil
 import pymem
+from win32com.client import Dispatch
 
 
 ReadProcessMemory = ctypes.windll.kernel32.ReadProcessMemory
@@ -232,6 +232,16 @@ def get_info_wxid(h_process):
     return wxid
 
 
+def get_exe_version(file_path):
+    """
+    获取 PE 文件的版本号
+    :param file_path:  PE 文件路径(可执行文件)
+    :return: 如果遇到错误则返回
+    """
+    file_version = Dispatch("Scripting.FileSystemObject").GetFileVersion(file_path)
+    return file_version
+
+
 # 读取微信信息(account,mobile,name,mail,wxid,key)
 def read_info(
     version_list: dict = None, is_logging: bool = False, save_path: str = None
@@ -256,7 +266,8 @@ def read_info(
         tmp_rd = {}
 
         tmp_rd["pid"] = process.pid
-        tmp_rd["version"] = "3.9.10.19"
+        tmp_rd["version"] = get_exe_version(process.exe())
+        print(f"[+] WeChat Version: {tmp_rd['version']}")
 
         Handle = ctypes.windll.kernel32.OpenProcess(0x1F0FFF, False, process.pid)
 
