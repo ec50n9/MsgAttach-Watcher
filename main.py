@@ -3,38 +3,63 @@ import json
 import os
 import shutil
 import sqlite3
+import pystache
 from typing import Dict
 
 from batch_decode_dat import decode_image
+from dat_utils import read_dat_files
 from dat_watcher import watch_dat_files
 from decode_db import decrypt_sqlite_file
 from get_wx_info import read_info
 
 
+OUTPUT_PATH_TEMPLATE = "./output/{{self_wx_name}}/{{file_edit_time}}/{{contact_user_name}}/{{file_base_name}}.jpg"
+EDIT_TIME_FORMAT = "%Y-%m-%d"
+
+
 def handle_dat_file(
-    file_info: Dict[str, str], md5_user_dict: Dict[str, Dict], wx_name: str
+    file_info: Dict[str, str],
+    md5_user_dict: Dict[str, Dict],
+    wx_name: str,
+    output_path_template: str,
+    edit_time_format: str = "%Y-%m-%d",
 ):
     """
     处理 .dat 文件
     """
     file_path = file_info.get("path")
     md5_id = file_info.get("md5_id")
-    date = file_info.get("date")
+    wx_date = file_info.get("date")
     file_name = file_info.get("file_name")
     last_edit_time = file_info.get("last_edit_time")
 
     base_name, ext = os.path.splitext(file_name)
-    edit_date = last_edit_time.strftime("%Y-%m-%d")
 
-    wx_info = md5_user_dict.get(md5_id)
-    if not wx_info:
+    contact_user_info = md5_user_dict.get(md5_id)
+    if not contact_user_info:
         print(f"未找到 md5_id 为 {md5_id} 的用户信息")
         return
-    user_name = (
-        wx_info.get("remark") or wx_info.get("nick_name") or wx_info.get("alias")
+    contact_user_name = (
+        contact_user_info.get("remark")
+        or contact_user_info.get("nick_name")
+        or contact_user_info.get("alias")
+    )
+    contact_alias = contact_user_info.get("alias")
+
+    output_path = pystache.render(
+        output_path_template,
+        {
+            "self_wx_name": wx_name,
+            "contact_md5_id": md5_id,
+            "contact_user_name": contact_user_name,
+            "contact_alias": contact_alias,
+            "file_origin_name": file_name,
+            "file_base_name": base_name,
+            "file_wx_time": wx_date,
+            "file_edit_time": last_edit_time.strftime(edit_time_format),
+        },
     )
 
-    output_path = f"./output/{wx_name}/{edit_date}/{user_name}/{base_name}.jpg"
     print(f"正在解码 {file_path}...")
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     decode_image(file_path, output_path)
@@ -88,20 +113,37 @@ if __name__ == "__main__":
 
     msg_attach_path = os.path.join(wx_file_path, "FileStorage", "MsgAttach")
 
-    # 获取 msg_attach_path 下的所有文件夹
-    # dat_files_info = read_dat_files(
-    #     msg_attach_path, ["4e57d4ac0a4bd64c6f052e7e755bc2e9"]
-    # )
-    # print(f"共找到 {len(dat_files_info)} 个 .dat 文件")
+    def start_handle_all_dat_files():
+        """
+        获取 msg_attach_path 下的所有文件夹
+        """
+        dat_files_info = read_dat_files(
+            msg_attach_path, ["4e57d4ac0a4bd64c6f052e7e755bc2e9"]
+        )
+        print(f"共找到 {len(dat_files_info)} 个 .dat 文件")
+        for file_info in dat_files_info:
+            handle_dat_file(
+                file_info=file_info,
+                md5_user_dict=md5_user_dict,
+                wx_name=wx_name,
+                output_path_template=OUTPUT_PATH_TEMPLATE,
+                edit_time_format=EDIT_TIME_FORMAT,
+            )
 
-    # for file_info in dat_files_info:
-    #     handle_dat_file(file_info, md5_user_dict, wx_name)
+    def start_watch_dat_files():
+        """
+        监视 msg_attach_path 下的文件变化
+        """
+        watch_dat_files(
+            root_dir=msg_attach_path,
+            whitelisted_users=["4e57d4ac0a4bd64c6f052e7e755bc2e9"],
+            handle_dat_file=lambda file_info: handle_dat_file(
+                file_info=file_info,
+                md5_user_dict=md5_user_dict,
+                wx_name=wx_name,
+                output_path_template=OUTPUT_PATH_TEMPLATE,
+                edit_time_format=EDIT_TIME_FORMAT,
+            ),
+        )
 
-    # 监视 msg_attach_path 下的文件变化
-    watch_dat_files(
-        root_dir=msg_attach_path,
-        whitelisted_users=["4e57d4ac0a4bd64c6f052e7e755bc2e9"],
-        handle_dat_file=lambda file_info: handle_dat_file(
-            file_info, md5_user_dict, wx_name
-        ),
-    )
+    start_watch_dat_files()
