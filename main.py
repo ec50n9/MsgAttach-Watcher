@@ -37,17 +37,6 @@ def parse_path(path: str) -> Dict[str, str]:
         return {}
 
 
-def create_dir(path: str, just_parent: bool = False):
-    """
-    如果目录不存在，创建目录
-    """
-    if os.path.exists(path):
-        return
-    if just_parent:
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-    else:
-        os.makedirs(path, exist_ok=True)
-
 
 def read_dat_files(
     root_dir: str, whitelisted_md5_ids: List[str] = []
@@ -92,7 +81,7 @@ def handle_dat_file(file_info: Dict[str, str]):
 
     output_path = f"./output/{wx_name}/{edit_date}/{user_name}/{base_name}.jpg"
     print(f"正在解码 {file_path}...")
-    create_dir(output_path, just_parent=True)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     decode_image(file_path, output_path)
 
 
@@ -158,7 +147,7 @@ if __name__ == "__main__":
     micro_decrypted_db_path = os.path.join(
         os.path.abspath("."), "dbs", "decrypted_micro_msg.db"
     )
-    create_dir(micro_decrypted_db_path, just_parent=True)
+    os.makedirs(os.path.dirname(micro_decrypted_db_path), exist_ok=True)
     shutil.copyfile(micro_db_path, micro_decrypted_db_path)
     decrypt_sqlite_file(wx_key, micro_decrypted_db_path)
 
