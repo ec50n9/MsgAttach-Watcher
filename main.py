@@ -119,9 +119,7 @@ if __name__ == "__main__":
         """
         获取 msg_attach_path 下的所有文件夹
         """
-        dat_files_info = read_dat_files(
-            msg_attach_path, ["4e57d4ac0a4bd64c6f052e7e755bc2e9"]
-        )
+        dat_files_info = read_dat_files(msg_attach_path, [])
         print(f"共找到 {len(dat_files_info)} 个 .dat 文件")
         for file_info in dat_files_info:
             handle_dat_file(
@@ -138,7 +136,7 @@ if __name__ == "__main__":
         """
         watch_dat_files(
             root_dir=msg_attach_path,
-            whitelisted_users=["4e57d4ac0a4bd64c6f052e7e755bc2e9"],
+            whitelisted_users=[],
             handle_dat_file=lambda file_info: handle_dat_file(
                 file_info=file_info,
                 md5_user_dict=md5_user_dict,
