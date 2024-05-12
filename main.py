@@ -5,30 +5,12 @@ import shutil
 import sqlite3
 from typing import Dict, List
 
-from dat_utils import handle_dat_file, parse_path
+from dat_utils import handle_dat_file, parse_path, read_dat_files
 from dat_watcher import watch_dat_files
 from decode_db import decrypt_sqlite_file
 from get_wx_info import read_info
 
 
-def read_dat_files(
-    root_dir: str, whitelisted_md5_ids: List[str] = []
-) -> List[Dict[str, str]]:
-    """
-    读取指定目录下的所有 .dat 文件，并将文件信息存储在字典数组中
-    """
-    result = []
-    for dirpath, _, filenames in os.walk(root_dir):
-        for filename in filenames:
-            if filename.endswith(".dat"):
-                file_path = os.path.join(dirpath, filename)
-                file_info = parse_path(file_path)
-                if file_info and (
-                    not whitelisted_md5_ids
-                    or file_info.get("md5_id") in whitelisted_md5_ids
-                ):
-                    result.append(file_info)
-    return result
 
 
 if __name__ == "__main__":

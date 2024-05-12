@@ -1,7 +1,7 @@
 import re
 import os
 from datetime import datetime
-from typing import Dict
+from typing import Dict, List
 
 from batch_decode_dat import decode_image
 
@@ -28,7 +28,9 @@ def parse_path(path: str) -> Dict[str, str]:
         return {}
 
 
-def handle_dat_file(file_info: Dict[str, str], md5_user_dict: Dict[str, Dict], wx_name: str):
+def handle_dat_file(
+    file_info: Dict[str, str], md5_user_dict: Dict[str, Dict], wx_name: str
+):
     """
     处理 .dat 文件
     """
@@ -53,3 +55,23 @@ def handle_dat_file(file_info: Dict[str, str], md5_user_dict: Dict[str, Dict], w
     print(f"正在解码 {file_path}...")
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     decode_image(file_path, output_path)
+
+
+def read_dat_files(
+    root_dir: str, whitelisted_md5_ids: List[str] = []
+) -> List[Dict[str, str]]:
+    """
+    读取指定目录下的所有 .dat 文件，并将文件信息存储在字典数组中
+    """
+    result = []
+    for dirpath, _, filenames in os.walk(root_dir):
+        for filename in filenames:
+            if filename.endswith(".dat"):
+                file_path = os.path.join(dirpath, filename)
+                file_info = parse_path(file_path)
+                if file_info and (
+                    not whitelisted_md5_ids
+                    or file_info.get("md5_id") in whitelisted_md5_ids
+                ):
+                    result.append(file_info)
+    return result
