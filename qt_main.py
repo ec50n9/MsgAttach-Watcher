@@ -17,8 +17,6 @@ from PyQt6.QtWidgets import (
     QTableWidgetItem,
     QDialog,
     QFormLayout,
-    QSpacerItem,
-    QSizePolicy,
 )
 from PyQt6.QtCore import Qt
 
