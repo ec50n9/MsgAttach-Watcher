@@ -1,6 +1,6 @@
 {
-    "base_path": "C:/Users/shell/Downloads/\u5fae\u4fe1\u56fe\u7247",
+    "base_path": "./output",
     "path_template": "{{self_wx_name}}/{{file_edit_time}}/{{contact_user_name}}/{{file_base_name}}.jpg",
-    "date_format": "%Y-%m-%d %H-%M-$D",
+    "date_format": "%Y-%m-%d",
     "whitelist": []
 }

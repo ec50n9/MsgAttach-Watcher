@@ -5,3 +5,6 @@
 /output
 /dbs
 __pycache__
+/dist
+/build
+qt_main.spec

@@ -1,5 +1,6 @@
 from dataclasses import asdict, dataclass, field, is_dataclass
 import json
+import os
 from typing import Any, List
 
 
@@ -43,6 +44,11 @@ class ConfigManager:
         self.load_config()
 
     def load_config(self):
+        # 如果文件不存在，在自动创建并写入 {}
+        if not os.path.exists(self.config_file_path):
+            with open(self.config_file_path, "w") as f:
+                f.write("{}")
+
         with open(self.config_file_path, "r") as f:
             config_dict = json.load(f)
             self.config = Config.from_dict(config_dict)
