@@ -17,13 +17,21 @@ from views.add_whitelist_dialog import AddWhitelistDialog
 
 
 class MainWindow(QWidget):
-    def __init__(self, config: Config, save_config: callable):
+    def __init__(
+        self,
+        config: Config,
+        on_save_config: callable,
+        on_start_watching: callable,
+        on_stop_watching: callable,
+    ):
         super().__init__()
 
         self.config = config
-        self.save_config = save_config
+        self.save_config = on_save_config
+        self.on_start_watching = on_start_watching
+        self.on_stop_watching = on_stop_watching
 
-        self.setGeometry(300, 300, 400, 200)
+        self.setGeometry(300, 300, 600, 300)
         self.setWindowTitle("MsgAttach Watcher")
         self.initUI()
 
@@ -42,6 +50,7 @@ class MainWindow(QWidget):
 
         self.base_path_input = QLineEdit()
         self.base_path_input.setText(self.config.base_path)
+        self.base_path_input.textChanged.connect(self.set_base_path)
 
         self.base_path_button = QPushButton("选择路径")
         self.base_path_button.setToolTip("选择要转换的图片文件夹")
@@ -81,9 +90,24 @@ class MainWindow(QWidget):
         self.form_layout.addRow(self.whitelist_label, self.whitelist_layout)
 
         # 保存按钮
+        self.actions_layout = QHBoxLayout()
         self.save_button = QPushButton("保存")
+        self.start_button = QPushButton("开始监控")
+        self.stop_button = QPushButton("停止监控")
         self.save_button.clicked.connect(self.save_config)
-        self.form_layout.addRow(self.save_button)
+        self.start_button.clicked.connect(self.on_start_watching)
+        self.stop_button.clicked.connect(self.on_stop_watching)
+        self.actions_layout.addWidget(self.save_button)
+        self.actions_layout.addWidget(self.start_button)
+        self.actions_layout.addWidget(self.stop_button)
+        self.form_layout.addRow(self.actions_layout)
+
+        # 运行状态
+        self.status_layout = QHBoxLayout()
+        self.status_label = QLabel("状态:")
+        self.status_layout.addWidget(self.status_label)
+        self.status_layout.addStretch()
+        self.form_layout.addRow(self.status_layout)
 
         # 设置标签最小宽度
         self.base_path_label.setMinimumWidth(50)
@@ -93,12 +117,15 @@ class MainWindow(QWidget):
 
         self.layout.addLayout(self.form_layout)
 
+    def set_base_path(self, text):
+        self.config.base_path = text
+
     def choose_folder(self):
         folder_path = QFileDialog.getExistingDirectory(
             self, "选择文件夹", self.base_path_input.text()
         )
         if folder_path:
-            self.config.base_path = folder_path
+            self.set_base_path(folder_path)
             self.base_path_input.setText(folder_path)
 
     def set_path_template(self, text):

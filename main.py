@@ -3,14 +3,15 @@ import json
 import os
 import shutil
 import sqlite3
+import time
 import pystache
 from typing import Dict
 
-from batch_decode_dat import decode_image
-from dat_utils import read_dat_files
-from dat_watcher import watch_dat_files
-from decode_db import decrypt_sqlite_file
-from get_wx_info import read_info
+from core.batch_decode_dat import decode_image
+from core.dat_utils import read_dat_files
+from core.dat_watcher import watch_dat_files
+from core.decode_db import decrypt_sqlite_file
+from core.get_wx_info import read_info
 
 
 # 模板变量中使用的 file_edit_time 的时间格式
@@ -67,9 +68,8 @@ def handle_dat_file(
     decode_image(file_path, output_path)
 
 
-if __name__ == "__main__":
+def init_wx_info():
     # 从 ./version_list.json 读取版本信息
-
     with open("./version_list.json", "r") as f:
         version_list = json.load(f)
 
@@ -115,6 +115,12 @@ if __name__ == "__main__":
 
     msg_attach_path = os.path.join(wx_file_path, "FileStorage", "MsgAttach")
 
+    return wx_name, msg_attach_path, md5_user_dict
+
+
+if __name__ == "__main__":
+    wx_name, msg_attach_path, md5_user_dict = init_wx_info()
+
     def start_handle_all_dat_files():
         """
         获取 msg_attach_path 下的所有文件夹
@@ -130,20 +136,19 @@ if __name__ == "__main__":
                 edit_time_format=EDIT_TIME_FORMAT,
             )
 
-    def start_watch_dat_files():
-        """
-        监视 msg_attach_path 下的文件变化
-        """
-        watch_dat_files(
-            root_dir=msg_attach_path,
-            whitelisted_users=[],
-            handle_dat_file=lambda file_info: handle_dat_file(
-                file_info=file_info,
-                md5_user_dict=md5_user_dict,
-                wx_name=wx_name,
-                output_path_template=OUTPUT_PATH_TEMPLATE,
-                edit_time_format=EDIT_TIME_FORMAT,
-            ),
-        )
+    running, start_watching, stop_watching = watch_dat_files(
+        root_dir=msg_attach_path,
+        whitelisted_users=[],
+        handle_dat_file=lambda file_info: handle_dat_file(
+            file_info=file_info,
+            md5_user_dict=md5_user_dict,
+            wx_name=wx_name,
+            output_path_template=OUTPUT_PATH_TEMPLATE,
+            edit_time_format=EDIT_TIME_FORMAT,
+        ),
+    )
 
-    start_watch_dat_files()
+    if not running:
+        start_watching()
+        time.sleep(5)
+        stop_watching()

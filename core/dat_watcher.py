@@ -3,7 +3,7 @@ from typing import List
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-from dat_utils import parse_path
+from core.dat_utils import parse_path
 
 
 class MyHandler(FileSystemEventHandler):
@@ -30,17 +30,33 @@ class MyHandler(FileSystemEventHandler):
         self.on_any_event(event)
 
 
-def watch_dat_files(root_dir: str, handle_dat_file: callable, whitelisted_users: List[str] = []):
+def watch_dat_files(
+    root_dir: str, handle_dat_file: callable, whitelisted_users: List[str] = []
+):
     """
     监视指定目录下的 .dat 文件，并将文件信息存储在字典数组中
     """
-    observer = Observer()
-    observer.schedule(MyHandler(whitelisted_users, handle_dat_file), root_dir, recursive=True)
-    observer.start()
-    print(f"开始监视 {root_dir} 下的文件变化...")
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        observer.stop()
-    observer.join()
+    observer = None
+    running = False
+
+    def start_watching():
+        nonlocal observer, running
+        if not running:
+            observer = Observer()
+            observer.schedule(
+                MyHandler(whitelisted_users, handle_dat_file), root_dir, recursive=True
+            )
+            observer.start()
+            print(f"开始监视 {root_dir} 下的文件变化...")
+            running = True
+
+    def stop_watching():
+        nonlocal observer, running
+        if running:
+            observer.stop()
+            observer.join()
+            print(f"停止监视 {root_dir} 下的文件变化...")
+            running = False
+
+    start_watching()
+    return stop_watching

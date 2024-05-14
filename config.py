@@ -12,9 +12,11 @@ class User:
 
 @dataclass
 class Config:
-    base_path: str = ""
-    path_template: str = ""
-    date_format: str = ""
+    base_path: str = "./output"
+    path_template: str = (
+        "{{self_wx_name}}/{{file_edit_time}}/{{contact_user_name}}/{{file_base_name}}.jpg"
+    )
+    date_format: str = "%Y-%m-%d"
     whitelist: List[User] = field(default_factory=list)
 
     @classmethod

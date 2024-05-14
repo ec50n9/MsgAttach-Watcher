@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 from typing import Dict, List
 
-from batch_decode_dat import decode_image
+from core.batch_decode_dat import decode_image
 
 
 def parse_path(path: str) -> Dict[str, str]:
