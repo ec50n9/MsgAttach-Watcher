@@ -1,0 +1,22 @@
+{
+    "base_path": "D:/other-projects/dat2jpg/.venv/Scripts",
+    "path_template": "adsfasd",
+    "date_format": "dafsd",
+    "whitelist": [
+        {
+            "id": "001",
+            "nickname": "Alice",
+            "signature": "AI enthusiast"
+        },
+        {
+            "id": "001",
+            "nickname": "Alice",
+            "signature": "AI enthusiast"
+        },
+        {
+            "id": "002",
+            "nickname": "Bob",
+            "signature": "Python developer"
+        }
+    ]
+}
