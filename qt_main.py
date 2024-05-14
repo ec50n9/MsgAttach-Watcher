@@ -10,7 +10,6 @@ import sys
 from typing import Dict
 from PyQt6.QtWidgets import QApplication
 import pystache
-import reactivex as rx
 
 from config import ConfigManager
 from core.batch_decode_dat import decode_image

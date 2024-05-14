@@ -27,7 +27,9 @@ class MainWindow(QWidget):
         super().__init__()
 
         self.config = config
-        self.save_config = on_save_config
+        self.on_save_config = on_save_config
+
+        self.is_watching = False
         self.on_start_watching = on_start_watching
         self.on_stop_watching = on_stop_watching
 
@@ -90,24 +92,23 @@ class MainWindow(QWidget):
         self.form_layout.addRow(self.whitelist_label, self.whitelist_layout)
 
         # 保存按钮
-        self.actions_layout = QHBoxLayout()
         self.save_button = QPushButton("保存")
+        self.save_button.clicked.connect(self.save_config)
+        self.form_layout.addWidget(self.save_button)
+
+        # 动作按钮
+        self.actions_layout = QHBoxLayout()
+        self.status_label = QLabel("状态: 未开始")
         self.start_button = QPushButton("开始监控")
         self.stop_button = QPushButton("停止监控")
-        self.save_button.clicked.connect(self.save_config)
-        self.start_button.clicked.connect(self.on_start_watching)
-        self.stop_button.clicked.connect(self.on_stop_watching)
-        self.actions_layout.addWidget(self.save_button)
+        self.start_button.setEnabled(True)
+        self.stop_button.setEnabled(False)
+        self.start_button.clicked.connect(self.start_watching)
+        self.stop_button.clicked.connect(self.stop_watching)
+        self.actions_layout.addWidget(self.status_label)
         self.actions_layout.addWidget(self.start_button)
         self.actions_layout.addWidget(self.stop_button)
         self.form_layout.addRow(self.actions_layout)
-
-        # 运行状态
-        self.status_layout = QHBoxLayout()
-        self.status_label = QLabel("状态:")
-        self.status_layout.addWidget(self.status_label)
-        self.status_layout.addStretch()
-        self.form_layout.addRow(self.status_layout)
 
         # 设置标签最小宽度
         self.base_path_label.setMinimumWidth(50)
@@ -146,6 +147,41 @@ class MainWindow(QWidget):
         self.config.whitelist.append(user)
         self.whitelist.addItem(user.get("nickname", "未知用户"))
 
+    def save_config(self):
+        self.on_save_config()
+        if self.is_watching:
+            reply = QMessageBox.question(
+                self,
+                "提示",
+                "监控已启动，是否重启监控？",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if reply == QMessageBox.StandardButton.Yes:
+                self.restart_watching()
+        else:
+            QMessageBox.information(self, "提示", "保存成功！")
+
+    def start_watching(self):
+        self.on_start_watching()
+        self.is_watching = True
+        self.status_label.setText("状态: 监控中")
+        self.status_label.setStyleSheet("color: green")
+        self.start_button.setEnabled(False)
+        self.stop_button.setEnabled(True)
+
+    def stop_watching(self):
+        self.on_stop_watching()
+        self.is_watching = False
+        self.status_label.setText("状态: 停止监控")
+        self.status_label.setStyleSheet("color: red")
+        self.start_button.setEnabled(True)
+        self.stop_button.setEnabled(False)
+
+    def restart_watching(self):
+        self.stop_watching()
+        self.start_watching()
+
     def closeEvent(self, event):
         reply = QMessageBox.question(
             self,
@@ -156,6 +192,7 @@ class MainWindow(QWidget):
         )
 
         if reply == QMessageBox.StandardButton.Yes:
+            self.stop_watching()
             event.accept()
         else:
             event.ignore()
