@@ -82,7 +82,7 @@ class MainWindow(QWidget):
         self.form_layout.setHorizontalSpacing(10)
 
         # 保存的根路径
-        self.base_path_label = QLabel("路径:")
+        self.base_path_label = QLabel("基础保存路径:")
 
         self.base_path_layout = QHBoxLayout()
 
@@ -99,28 +99,28 @@ class MainWindow(QWidget):
         self.form_layout.addRow(self.base_path_label, self.base_path_layout)
 
         # 保存路径模板
-        self.path_template_label = QLabel("模板:")
+        self.path_template_label = QLabel("具体文件路径:")
         self.path_template_input = QLineEdit()
         self.path_template_input.setText(self.config.path_template)
         self.path_template_input.textChanged.connect(self.set_path_template)
         self.form_layout.addRow(self.path_template_label, self.path_template_input)
 
         # 日期格式
-        self.date_format_label = QLabel("日期格式:")
+        self.date_format_label = QLabel("分类日期格式:")
         self.date_format_input = QLineEdit()
         self.date_format_input.setText(self.config.date_format)
         self.date_format_input.textChanged.connect(self.set_date_format)
         self.form_layout.addRow(self.date_format_label, self.date_format_input)
 
         # 白名单
-        self.whitelist_label = QLabel("白名单:")
+        self.whitelist_label = QLabel("监听白名单:")
 
         self.whitelist_layout = QVBoxLayout()
         self.whitelist = QListWidget()
         self.whitelist.addItems([str(user) for user in self.config.whitelist])
         self.whitelist.itemDoubleClicked.connect(self.remove_whitelist_item)
 
-        self.add_whitelist_button = QPushButton("添加白名单")
+        self.add_whitelist_button = QPushButton("添加好友到白名单")
         self.add_whitelist_button.clicked.connect(self.show_add_whitelist_dialog)
 
         self.whitelist_layout.addWidget(self.whitelist)

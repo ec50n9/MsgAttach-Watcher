@@ -88,7 +88,7 @@ def init_wx_info():
     wx_name = result[0].get("name")
     wx_file_path = result[0].get("filePath")
     wx_key = result[0].get("key")
-    if not wx_key:
+    if wx_file_path is "None" or wx_key is "None":
         print(f"获取 {wx_name} 的key失败")
         return None, None, None
 
@@ -188,7 +188,7 @@ class WaitForWechatStartWorker(QThread):
                 if process.name() == "WeChat.exe":
                     # 初始化微信信息
                     wx_name, msg_attach_path, md5_user_dict = init_wx_info()
-                    if wx_name is not None:
+                    if msg_attach_path is not None:
                         self.finished.emit(wx_name, msg_attach_path, md5_user_dict)
                         return
                     else:
@@ -202,8 +202,8 @@ def app():
 
     # 显示等待窗口
     waiting_window = QMessageBox()
-    waiting_window.setWindowTitle("等待启动中")
-    waiting_window.setText("请在微信客户端中登录并保持登录状态")
+    waiting_window.setWindowTitle("MsgAttach Watcher")
+    waiting_window.setText("请登录微信客户端并点开任意好友的聊天窗口...")
     waiting_window.addButton("取消", QMessageBox.ButtonRole.YesRole)
     waiting_window.show()
 
