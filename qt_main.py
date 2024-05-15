@@ -139,7 +139,6 @@ def main():
             hashlib.md5(user.user_name.encode()).hexdigest()
             for user in config_manager.config.whitelist
         ]
-        print("白名单用户", user_name_in_whitelist)
         output_path_template = os.path.join(base_path, path_template)
         edit_time_format = config_manager.config.date_format
 

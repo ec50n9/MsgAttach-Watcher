@@ -1,6 +1,6 @@
-import sys
 from typing import Dict, List
 from PyQt6.QtWidgets import (
+    QApplication,
     QWidget,
     QPushButton,
     QMessageBox,
@@ -11,7 +11,10 @@ from PyQt6.QtWidgets import (
     QFileDialog,
     QLabel,
     QFormLayout,
+    QSystemTrayIcon,
+    QMenu,
 )
+from PyQt6.QtGui import QIcon
 
 from config import Config
 from views.add_whitelist_dialog import AddWhitelistDialog
@@ -38,7 +41,32 @@ class MainWindow(QWidget):
 
         self.setGeometry(300, 300, 600, 300)
         self.setWindowTitle("MsgAttach Watcher")
+        self.initTary()
         self.initUI()
+
+    def initTary(self):
+        self.tary_icon = QSystemTrayIcon(self)
+        self.tary_icon.setToolTip("MsgAttach Watcher")
+        self.tary_icon.setIcon(QIcon("assets/icon.png"))
+        self.tary_icon.show()
+
+        menu = QMenu()
+        self.tary_icon.setContextMenu(menu)
+
+        show_action = menu.addAction("显示主界面")
+        show_action.triggered.connect(self.show)
+        start_action = menu.addAction("开始监控")
+        start_action.triggered.connect(self.start_watching)
+        stop_action = menu.addAction("停止监控")
+        stop_action.triggered.connect(self.stop_watching)
+        quit_action = menu.addAction("退出")
+        quit_action.triggered.connect(self.close)
+
+        self.tary_icon.activated.connect(self.icon_activated)
+
+    def icon_activated(self, reason):
+        if reason == QSystemTrayIcon.ActivationReason.Trigger:
+            self.show()
 
     def initUI(self):
         self.layout = QVBoxLayout()
@@ -187,16 +215,24 @@ class MainWindow(QWidget):
         self.start_watching()
 
     def closeEvent(self, event):
-        reply = QMessageBox.question(
-            self,
-            "提示",
-            "确认退出吗？",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No,
-        )
+        reply = reply = QMessageBox(self)
+        reply.setWindowTitle(self.tr("提示"))
+        reply.setText(self.tr("选择你的操作："))
 
-        if reply == QMessageBox.StandardButton.Yes:
+        close_btn = reply.addButton(self.tr("退出程序"), QMessageBox.ButtonRole.YesRole)
+        minimize_btn = reply.addButton(
+            self.tr("最小化界面"), QMessageBox.ButtonRole.NoRole
+        )
+        reply.setDefaultButton(minimize_btn)
+
+        reply.setIcon(QMessageBox.Icon.Question)
+        reply.exec()
+
+        if reply.clickedButton() == close_btn:
             self.stop_watching()
             event.accept()
+        elif reply.clickedButton() == minimize_btn:
+            event.ignore()
+            self.hide()  # 窗口最小化
         else:
             event.ignore()
