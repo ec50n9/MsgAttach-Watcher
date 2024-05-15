@@ -19,7 +19,7 @@ class User:
 class Config:
     base_path: str = "./output"
     path_template: str = (
-        "{{self_wx_name}}/{{file_edit_time}}/{{contact_user_name}}/{{file_base_name}}.jpg"
+        "{{self_wx_name}}/{{file_type}}/{{file_edit_time}}/{{contact_user_name}}/{{file_base_name}}.jpg"
     )
     date_format: str = "%Y-%m-%d"
     whitelist: List[User] = field(default_factory=list)
