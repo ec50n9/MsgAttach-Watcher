@@ -124,7 +124,7 @@ class MainWindow(QWidget):
         self.form_layout.addRow(self.whitelist_label, self.whitelist_layout)
 
         # 保存按钮
-        self.save_button = QPushButton("保存")
+        self.save_button = QPushButton("保存全部设置")
         self.save_button.clicked.connect(self.save_config)
         self.form_layout.addWidget(self.save_button)
 

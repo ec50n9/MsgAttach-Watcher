@@ -46,7 +46,7 @@ class AddWhitelistDialog(QDialog):
 
         # 确认按钮
         self.buttons_layout = QHBoxLayout()
-        self.confirm_button = QPushButton("添加")
+        self.confirm_button = QPushButton("保存")
         self.cancel_button = QPushButton("取消")
         self.buttons_layout.addWidget(self.confirm_button)
         self.buttons_layout.addWidget(self.cancel_button)
