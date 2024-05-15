@@ -12,14 +12,19 @@ def parse_path(path: str) -> Dict[str, str]:
     """
     path = os.path.normpath(path).replace("\\", "/")
     match = re.match(
-        r".*?MsgAttach/([a-fA-F0-9]{32})/Image/(\d{4}-\d{2})/(.+?\.dat)", path
+        r".*?MsgAttach/([a-fA-F0-9]{32})/(Image|Thumb)/(\d{4}-\d{2})/(.+?\.dat)", path
     )
     if match:
-        md5_id, date, file_name = match.groups()
-        last_edit_time = datetime.fromtimestamp(os.path.getmtime(path))
+        md5_id, jpg_type, date, file_name = match.groups()
+        try:
+            last_edit_time = datetime.fromtimestamp(os.path.getmtime(path))
+        except FileNotFoundError:
+            print(f"File not found: {path}")
+            last_edit_time = None
         return {
             "path": path,
             "md5_id": md5_id,
+            "jpg_type": jpg_type,
             "date": date,
             "file_name": file_name,
             "last_edit_time": last_edit_time,

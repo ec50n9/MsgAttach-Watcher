@@ -23,6 +23,7 @@ class Config:
     )
     date_format: str = "%Y-%m-%d"
     whitelist: List[User] = field(default_factory=list)
+    save_thumb: bool = True
 
     @classmethod
     def from_dict(cls, config_dict: dict):

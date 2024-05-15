@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 import hashlib
 import json
 import os
@@ -31,6 +32,7 @@ def handle_dat_file(
     """
     file_path = file_info.get("path")
     md5_id = file_info.get("md5_id")
+    jpg_type = file_info.get("jpg_type")
     wx_date = file_info.get("date")
     file_name = file_info.get("file_name")
     last_edit_time = file_info.get("last_edit_time")
@@ -55,10 +57,11 @@ def handle_dat_file(
             "contact_md5_id": md5_id,
             "contact_user_name": contact_user_name,
             "contact_alias": contact_alias,
+            "file_type": jpg_type,
             "file_origin_name": file_name,
             "file_base_name": base_name,
             "file_wx_time": wx_date,
-            "file_edit_time": last_edit_time.strftime(edit_time_format),
+            "file_edit_time": (last_edit_time or datetime.now()).strftime(edit_time_format),
         },
     )
 
@@ -145,6 +148,7 @@ def main():
         # 监听文件变化
         is_watching = True
         stop_watching = watch_dat_files(
+            config=config_manager.config,
             root_dir=msg_attach_path,
             whitelisted_users=user_name_in_whitelist,
             handle_dat_file=lambda file_info: handle_dat_file(

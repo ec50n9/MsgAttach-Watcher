@@ -3,11 +3,15 @@ from typing import List
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
+from config import Config
 from core.dat_utils import parse_path
 
 
 class MyHandler(FileSystemEventHandler):
-    def __init__(self, whitelisted_users: List[str], handle_dat_file: callable):
+    def __init__(
+        self, config: Config, whitelisted_users: List[str], handle_dat_file: callable
+    ):
+        self.config = config
         self.whitelisted_users = whitelisted_users
         self.handle_dat_file = handle_dat_file
 
@@ -17,11 +21,16 @@ class MyHandler(FileSystemEventHandler):
 
         file_info = parse_path(event.src_path)
         if file_info:
+            if (not self.config.save_thumb) and file_info.get("jpg_type") == "Thumb":
+                return
+
             if (
-                not self.whitelisted_users
-                or file_info.get("md5_id") in self.whitelisted_users
+                self.whitelisted_users
+                and file_info.get("md5_id") not in self.whitelisted_users
             ):
-                self.handle_dat_file(file_info)
+                return
+
+            self.handle_dat_file(file_info)
 
     def on_created(self, event):
         self.on_any_event(event)
@@ -31,7 +40,10 @@ class MyHandler(FileSystemEventHandler):
 
 
 def watch_dat_files(
-    root_dir: str, handle_dat_file: callable, whitelisted_users: List[str] = []
+    config: Config,
+    root_dir: str,
+    handle_dat_file: callable,
+    whitelisted_users: List[str] = [],
 ):
     """
     监视指定目录下的 .dat 文件，并将文件信息存储在字典数组中
@@ -44,7 +56,13 @@ def watch_dat_files(
         if not running:
             observer = Observer()
             observer.schedule(
-                MyHandler(whitelisted_users, handle_dat_file), root_dir, recursive=True
+                MyHandler(
+                    config=config,
+                    whitelisted_users=whitelisted_users,
+                    handle_dat_file=handle_dat_file,
+                ),
+                root_dir,
+                recursive=True,
             )
             observer.start()
             print(f"开始监视 {root_dir} 下的文件变化...")

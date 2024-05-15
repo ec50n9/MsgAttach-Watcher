@@ -140,7 +140,15 @@ class MainWindow(QWidget):
                 else self.disable_autostart()
             )
         )
+        # 保存缩略图
+        self.save_thumb_checkbox = QCheckBox("保存缩略图")
+        self.save_thumb_checkbox.setChecked(self.config.save_thumb)
+        self.save_thumb_checkbox.stateChanged.connect(
+            lambda: setattr(self.config, "save_thumb", self.save_thumb_checkbox.isChecked())
+        )
+
         self.real_time_layout.addWidget(self.autostart_checkbox)
+        self.real_time_layout.addWidget(self.save_thumb_checkbox)
         self.form_layout.addRow(self.real_time_layout)
 
         # 动作按钮
