@@ -61,7 +61,9 @@ def handle_dat_file(
             "file_origin_name": file_name,
             "file_base_name": base_name,
             "file_wx_time": wx_date,
-            "file_edit_time": (last_edit_time or datetime.now()).strftime(edit_time_format),
+            "file_edit_time": (last_edit_time or datetime.now()).strftime(
+                edit_time_format
+            ),
         },
     )
 

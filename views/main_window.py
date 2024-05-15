@@ -45,6 +45,10 @@ class MainWindow(QWidget):
         self.initTary()
         self.initUI()
 
+        # 启动监听
+        if self.config.start_watching:
+            self.start_watching()
+
     def initTary(self):
         self.tary_icon = QSystemTrayIcon(self)
         self.tary_icon.setToolTip("MsgAttach Watcher")
@@ -140,14 +144,25 @@ class MainWindow(QWidget):
                 else self.disable_autostart()
             )
         )
+        # 默认开始监控
+        self.start_watching_checkbox = QCheckBox("默认开始监控")
+        self.start_watching_checkbox.setChecked(self.config.start_watching)
+        self.start_watching_checkbox.stateChanged.connect(
+            lambda: setattr(
+                self.config, "start_watching", self.start_watching_checkbox.isChecked()
+            )
+        )
         # 保存缩略图
         self.save_thumb_checkbox = QCheckBox("保存缩略图")
         self.save_thumb_checkbox.setChecked(self.config.save_thumb)
         self.save_thumb_checkbox.stateChanged.connect(
-            lambda: setattr(self.config, "save_thumb", self.save_thumb_checkbox.isChecked())
+            lambda: setattr(
+                self.config, "save_thumb", self.save_thumb_checkbox.isChecked()
+            )
         )
 
         self.real_time_layout.addWidget(self.autostart_checkbox)
+        self.real_time_layout.addWidget(self.start_watching_checkbox)
         self.real_time_layout.addWidget(self.save_thumb_checkbox)
         self.form_layout.addRow(self.real_time_layout)
 

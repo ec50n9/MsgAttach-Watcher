@@ -23,6 +23,7 @@ class Config:
     )
     date_format: str = "%Y-%m-%d"
     whitelist: List[User] = field(default_factory=list)
+    start_watching: bool = False
     save_thumb: bool = True
 
     @classmethod
