@@ -127,9 +127,7 @@ def init_wx_info():
 
 def main(wx_name, msg_attach_path, md5_user_dict):
     # 加载配置
-    config_manager = ConfigManager(
-        os.path.join(os.path.dirname(__file__), "config.json")
-    )
+    config_manager = ConfigManager("./config.json")
 
     is_watching = False
     stop_watching = None
