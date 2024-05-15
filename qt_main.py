@@ -88,7 +88,7 @@ def init_wx_info():
     wx_name = result[0].get("name")
     wx_file_path = result[0].get("filePath")
     wx_key = result[0].get("key")
-    if wx_file_path is "None" or wx_key is "None":
+    if wx_file_path == "None" or wx_key == "None":
         print(f"获取 {wx_name} 的key失败")
         return None, None, None
 
