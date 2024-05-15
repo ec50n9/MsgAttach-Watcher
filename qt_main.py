@@ -72,7 +72,11 @@ def handle_dat_file(
 
     print(f"正在解码 {file_path}...")
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    decode_image(file_path, output_path)
+    try:
+        decode_image(file_path, output_path)
+    except Exception as e:
+        print(f"解码失败: {e}")
+        return
 
 
 def init_wx_info():
