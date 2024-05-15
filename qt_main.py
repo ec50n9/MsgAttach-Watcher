@@ -126,14 +126,20 @@ def main():
     is_watching = False
     stop_watching = None
 
-    def start_watching_wrapper():
-        nonlocal is_watching, stop_watching
-        wx_name, msg_attach_path, md5_user_dict = init_wx_info()
+    # 初始化微信信息
+    wx_name, msg_attach_path, md5_user_dict = init_wx_info()
 
+    def start_watching_wrapper():
+        nonlocal is_watching, stop_watching, wx_name, msg_attach_path, md5_user_dict, config_manager
         base_path = os.path.normpath(config_manager.config.base_path)
         if not os.path.exists(base_path):
             os.makedirs(base_path)
         path_template = os.path.normpath(config_manager.config.path_template)
+        user_name_in_whitelist = [
+            hashlib.md5(user.user_name.encode()).hexdigest()
+            for user in config_manager.config.whitelist
+        ]
+        print("白名单用户", user_name_in_whitelist)
         output_path_template = os.path.join(base_path, path_template)
         edit_time_format = config_manager.config.date_format
 
@@ -141,7 +147,7 @@ def main():
         is_watching = True
         stop_watching = watch_dat_files(
             root_dir=msg_attach_path,
-            whitelisted_users=[],
+            whitelisted_users=user_name_in_whitelist,
             handle_dat_file=lambda file_info: handle_dat_file(
                 file_info=file_info,
                 md5_user_dict=md5_user_dict,
@@ -162,6 +168,7 @@ def main():
     app = QApplication(sys.argv)
     window = MainWindow(
         config=config_manager.config,
+        user_list=[v for _, v in md5_user_dict.items()],
         on_save_config=config_manager.save_config,
         on_start_watching=start_watching_wrapper,
         on_stop_watching=stop_watching_wrapper,

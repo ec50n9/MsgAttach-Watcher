@@ -6,9 +6,13 @@ from typing import Any, List
 
 @dataclass
 class User:
-    id: str
-    nickname: str
-    signature: str
+    user_name: str
+    alias: str = ""
+    nick_name: str = ""
+    remark: str = ""
+
+    def __str__(self) -> str:
+        return f"{self.remark or self.nick_name or self.alias} ({self.user_name})"
 
 
 @dataclass

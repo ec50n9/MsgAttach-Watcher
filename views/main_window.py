@@ -1,4 +1,5 @@
 import sys
+from typing import Dict, List
 from PyQt6.QtWidgets import (
     QWidget,
     QPushButton,
@@ -20,6 +21,7 @@ class MainWindow(QWidget):
     def __init__(
         self,
         config: Config,
+        user_list: List[Dict[str, str]],
         on_save_config: callable,
         on_start_watching: callable,
         on_stop_watching: callable,
@@ -28,6 +30,7 @@ class MainWindow(QWidget):
 
         self.config = config
         self.on_save_config = on_save_config
+        self.user_list = user_list
 
         self.is_watching = False
         self.on_start_watching = on_start_watching
@@ -81,7 +84,7 @@ class MainWindow(QWidget):
 
         self.whitelist_layout = QVBoxLayout()
         self.whitelist = QListWidget()
-        self.whitelist.addItems([user.nickname for user in self.config.whitelist])
+        self.whitelist.addItems([str(user) for user in self.config.whitelist])
         self.whitelist.itemDoubleClicked.connect(self.remove_whitelist_item)
 
         self.add_whitelist_button = QPushButton("添加白名单")
@@ -143,9 +146,10 @@ class MainWindow(QWidget):
         dialog = AddWhitelistDialog(self)
         dialog.show()
 
-    def add_whitelist_item(self, user):
-        self.config.whitelist.append(user)
-        self.whitelist.addItem(user.get("nickname", "未知用户"))
+    def update_whitelist(self, user_list):
+        self.config.whitelist = user_list
+        self.whitelist.clear()
+        self.whitelist.addItems([str(user) for user in user_list])
 
     def save_config(self):
         self.on_save_config()

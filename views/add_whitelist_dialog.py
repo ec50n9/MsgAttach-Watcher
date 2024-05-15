@@ -1,4 +1,5 @@
 import sys
+from typing import Dict, List
 from PyQt6.QtWidgets import (
     QPushButton,
     QVBoxLayout,
@@ -10,11 +11,14 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt
 
+from config import User
+
 
 class AddWhitelistDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setGeometry(300, 300, 500, 300)
+
+        self.setGeometry(300, 300, 700, 500)
         self.setWindowTitle("添加白名单")
 
         self.initUI()
@@ -30,8 +34,14 @@ class AddWhitelistDialog(QDialog):
 
         # 列表
         self.table_widget = QTableWidget()
-        self.table_widget.setColumnCount(3)
-        self.table_widget.setHorizontalHeaderLabels(["ID", "昵称", "签名"])
+        self.table_widget.setColumnCount(4)
+        self.table_widget.setHorizontalHeaderLabels(
+            ["原始id", "备注", "微信名称", "微信号"]
+        )
+        self.table_widget.setColumnWidth(0, 180)
+        self.table_widget.setColumnWidth(1, 100)
+        self.table_widget.setColumnWidth(2, 150)
+        self.table_widget.setColumnWidth(3, 150)
         self.layout.addWidget(self.table_widget)
 
         # 确认按钮
@@ -50,24 +60,29 @@ class AddWhitelistDialog(QDialog):
         self.populate_user_list()
 
     def populate_user_list(self):
-        users = [
-            {"nickname": "Alice", "id": "001", "signature": "AI enthusiast"},
-            {"nickname": "Bob", "id": "002", "signature": "Python developer"},
-        ]
+        users = self.parent().user_list
         self.table_widget.setRowCount(len(users))
 
-        for row, user in enumerate(users):
-            # ID
-            id_item = QTableWidgetItem(user["id"])
-            id_item.setCheckState(Qt.CheckState.Unchecked)
-            # 昵称
-            nickname_item = QTableWidgetItem(user["nickname"])
-            # 签名
-            signature_item = QTableWidgetItem(user["signature"])
+        user_name_in_whitelist = [
+            user.user_name for user in self.parent().config.whitelist
+        ]
 
-            self.table_widget.setItem(row, 0, id_item)
-            self.table_widget.setItem(row, 1, nickname_item)
-            self.table_widget.setItem(row, 2, signature_item)
+        for row, user in enumerate(users):
+            is_checked = user["user_name"] in user_name_in_whitelist
+
+            # ID
+            user_name_item = QTableWidgetItem(user["user_name"])
+            user_name_item.setCheckState(
+                Qt.CheckState.Unchecked if not is_checked else Qt.CheckState.Checked
+            )
+            alias_item = QTableWidgetItem(user["alias"])
+            nick_name_item = QTableWidgetItem(user["nick_name"])
+            remark_item = QTableWidgetItem(user["remark"])
+
+            self.table_widget.setItem(row, 0, user_name_item)
+            self.table_widget.setItem(row, 1, remark_item)
+            self.table_widget.setItem(row, 2, nick_name_item)
+            self.table_widget.setItem(row, 3, alias_item)
 
     def filter_user(self, text):
         # 先隐藏所有项
@@ -81,13 +96,16 @@ class AddWhitelistDialog(QDialog):
             self.table_widget.setRowHidden(row, not match)
 
     def add_selected_users(self):
+        user_list = []
         for row in range(self.table_widget.rowCount()):
             checkbox_item = self.table_widget.item(row, 0)
             if checkbox_item.checkState() == Qt.CheckState.Checked:
-                user = {
-                    "id": self.table_widget.item(row, 0).text(),
-                    "nickname": self.table_widget.item(row, 1).text(),
-                    "signature": self.table_widget.item(row, 2).text(),
-                }
-                self.parent().add_whitelist_item(user)
+                user = User(
+                    user_name=self.table_widget.item(row, 0).text(),
+                    remark=self.table_widget.item(row, 1).text(),
+                    nick_name=self.table_widget.item(row, 2).text(),
+                    alias=self.table_widget.item(row, 3).text(),
+                )
+                user_list.append(user)
+        self.parent().update_whitelist(user_list)
         self.close()

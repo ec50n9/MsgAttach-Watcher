@@ -1,6 +1,19 @@
 {
-    "base_path": "./output",
+    "base_path": "C:/Users/shell/Downloads",
     "path_template": "{{self_wx_name}}/{{file_edit_time}}/{{contact_user_name}}/{{file_base_name}}.jpg",
     "date_format": "%Y-%m-%d",
-    "whitelist": []
+    "whitelist": [
+        {
+            "user_name": "wxid_a4wk56tl3y7b22",
+            "alias": "",
+            "nick_name": "ec50n9",
+            "remark": ""
+        },
+        {
+            "user_name": "wxid_j6m456dzox8u22",
+            "alias": "ic8Sloth-",
+            "nick_name": "Devour.",
+            "remark": ""
+        }
+    ]
 }
