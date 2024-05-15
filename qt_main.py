@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+import time
 import hashlib
 import json
 import os
@@ -9,7 +10,9 @@ import shutil
 import sqlite3
 import sys
 from typing import Dict
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication, QMessageBox
+from PyQt6.QtCore import QThread, pyqtSignal
+import psutil
 import pystache
 
 from config import ConfigManager
@@ -122,7 +125,7 @@ def init_wx_info():
     return wx_name, msg_attach_path, md5_user_dict
 
 
-def main():
+def main(wx_name, msg_attach_path, md5_user_dict):
     # 加载配置
     config_manager = ConfigManager(
         os.path.join(os.path.dirname(__file__), "config.json")
@@ -130,9 +133,6 @@ def main():
 
     is_watching = False
     stop_watching = None
-
-    # 初始化微信信息
-    wx_name, msg_attach_path, md5_user_dict = init_wx_info()
 
     def start_watching_wrapper():
         nonlocal is_watching, stop_watching, wx_name, msg_attach_path, md5_user_dict, config_manager
@@ -170,7 +170,6 @@ def main():
         is_watching = False
         stop_watching()
 
-    app = QApplication(sys.argv)
     window = MainWindow(
         config=config_manager.config,
         user_list=[v for _, v in md5_user_dict.items()],
@@ -179,8 +178,53 @@ def main():
         on_stop_watching=stop_watching_wrapper,
     )
     window.show()
+
+
+class WaitForWechatStartWorker(QThread):
+
+    finished = pyqtSignal(str, str, dict)
+
+    def run(self):
+        while True:
+            for process in psutil.process_iter(["name", "exe", "pid", "cmdline"]):
+                if process.name() == "WeChat.exe":
+                    # 初始化微信信息
+                    wx_name, msg_attach_path, md5_user_dict = init_wx_info()
+                    if wx_name is not None:
+                        self.finished.emit(wx_name, msg_attach_path, md5_user_dict)
+                        return
+                    else:
+                        print("微信信息获取失败")
+
+            time.sleep(3)
+
+
+def app():
+    app = QApplication(sys.argv)
+
+    # 显示等待窗口
+    waiting_window = QMessageBox()
+    waiting_window.setWindowTitle("等待启动中")
+    waiting_window.setText("请在微信客户端中登录并保持登录状态")
+    waiting_window.addButton("取消", QMessageBox.ButtonRole.YesRole)
+    waiting_window.show()
+
+    # 等待微信启动
+    worker = WaitForWechatStartWorker()
+
+    def callback(wx_name, msg_attach_path, md5_user_dict):
+        waiting_window.close()
+        main(
+            wx_name=wx_name,
+            msg_attach_path=msg_attach_path,
+            md5_user_dict=md5_user_dict,
+        )
+
+    worker.finished.connect(callback)
+    worker.start()
+
     sys.exit(app.exec())
 
 
 if __name__ == "__main__":
-    main()
+    app()
