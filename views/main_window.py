@@ -1,6 +1,5 @@
 from typing import Dict, List
 from PyQt6.QtWidgets import (
-    QApplication,
     QWidget,
     QPushButton,
     QMessageBox,
@@ -13,10 +12,12 @@ from PyQt6.QtWidgets import (
     QFormLayout,
     QSystemTrayIcon,
     QMenu,
+    QCheckBox,
 )
 from PyQt6.QtGui import QIcon
 
 from config import Config
+from utils.auto_run import AutoRun, AutoRun_Is_Open
 from views.add_whitelist_dialog import AddWhitelistDialog
 
 
@@ -127,6 +128,21 @@ class MainWindow(QWidget):
         self.save_button.clicked.connect(self.save_config)
         self.form_layout.addWidget(self.save_button)
 
+        # 实时生效的设置
+        self.real_time_layout = QHBoxLayout()
+        # 开机自启动
+        self.autostart_checkbox = QCheckBox("开机自启动")
+        self.autostart_checkbox.setChecked(AutoRun_Is_Open(key_name="MsgAttachWatcher"))
+        self.autostart_checkbox.stateChanged.connect(
+            lambda: (
+                self.enable_autostart()
+                if self.autostart_checkbox.isChecked()
+                else self.disable_autostart()
+            )
+        )
+        self.real_time_layout.addWidget(self.autostart_checkbox)
+        self.form_layout.addRow(self.real_time_layout)
+
         # 动作按钮
         self.actions_layout = QHBoxLayout()
         self.status_label = QLabel("状态: 未开始")
@@ -148,6 +164,14 @@ class MainWindow(QWidget):
         self.whitelist_label.setMinimumWidth(50)
 
         self.layout.addLayout(self.form_layout)
+
+    def enable_autostart(self):
+        AutoRun(switch="open", key_name="MsgAttachWatcher")
+        self.autostart_checkbox.setChecked(AutoRun_Is_Open(key_name="MsgAttachWatcher"))
+
+    def disable_autostart(self):
+        AutoRun(switch="close", key_name="MsgAttachWatcher")
+        self.autostart_checkbox.setChecked(AutoRun_Is_Open(key_name="MsgAttachWatcher"))
 
     def set_base_path(self, text):
         self.config.base_path = text

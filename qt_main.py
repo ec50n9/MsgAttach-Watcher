@@ -76,13 +76,13 @@ def init_wx_info():
     result = read_info(version_list=version_list, is_logging=True)
     if not result:
         print("微信信息获取失败")
-        exit(1)
+        return None, None, None
     wx_name = result[0].get("name")
     wx_file_path = result[0].get("filePath")
     wx_key = result[0].get("key")
     if not wx_key:
         print(f"获取 {wx_name} 的key失败")
-        exit(1)
+        return None, None, None
 
     # 破解MicroMsg.db数据库
     micro_db_path = os.path.join(wx_file_path, "Msg", "MicroMsg.db")
