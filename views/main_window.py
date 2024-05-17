@@ -13,6 +13,7 @@ from PyQt6.QtWidgets import (
     QSystemTrayIcon,
     QMenu,
     QCheckBox,
+    QTabWidget,
 )
 from PyQt6.QtGui import QIcon
 
@@ -43,7 +44,7 @@ class MainWindow(QWidget):
         self.setGeometry(300, 300, 600, 300)
         self.setWindowTitle("MsgAttach Watcher")
         self.initTary()
-        self.initUI()
+        self.setup_ui()
 
         # 启动监听
         if self.config.start_watching:
@@ -73,10 +74,18 @@ class MainWindow(QWidget):
         if reason == QSystemTrayIcon.ActivationReason.Trigger:
             self.show()
 
-    def initUI(self):
+    def setup_ui(self):
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
 
+        self.tabs = QTabWidget()
+        self.setup_home_tab()
+        self.setup_tools_tab()
+        self.tabs.setCurrentIndex(0)
+
+        self.layout.addWidget(self.tabs)
+
+    def setup_home_tab(self):
         # 表单
         self.form_layout = QFormLayout()
         self.form_layout.setHorizontalSpacing(10)
@@ -186,7 +195,14 @@ class MainWindow(QWidget):
         self.date_format_label.setMinimumWidth(50)
         self.whitelist_label.setMinimumWidth(50)
 
-        self.layout.addLayout(self.form_layout)
+        self.tab_home = QWidget()
+        self.tab_home.setLayout(self.form_layout)
+        self.tabs.addTab(self.tab_home, "设置")
+
+    def setup_tools_tab(self):
+        self.tab_tools = QWidget()
+        self.tab_tools.setLayout(QVBoxLayout())
+        self.tabs.addTab(self.tab_tools, "工具")
 
     def enable_autostart(self):
         AutoRun(switch="open", key_name="MsgAttachWatcher")
