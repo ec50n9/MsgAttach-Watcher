@@ -19,6 +19,7 @@ from PyQt6.QtGui import QIcon
 
 from config import Config
 from utils.auto_run import AutoRun, AutoRun_Is_Open
+from utils.excel import save_dict_to_excel
 from views.add_whitelist_dialog import AddWhitelistDialog
 
 
@@ -87,8 +88,8 @@ class MainWindow(QWidget):
 
     def setup_home_tab(self):
         # 表单
-        self.form_layout = QFormLayout()
-        self.form_layout.setHorizontalSpacing(10)
+        self.home_form_layout = QFormLayout()
+        self.home_form_layout.setHorizontalSpacing(10)
 
         # 保存的根路径
         self.base_path_label = QLabel("基础保存路径:")
@@ -105,21 +106,21 @@ class MainWindow(QWidget):
 
         self.base_path_layout.addWidget(self.base_path_input)
         self.base_path_layout.addWidget(self.base_path_button)
-        self.form_layout.addRow(self.base_path_label, self.base_path_layout)
+        self.home_form_layout.addRow(self.base_path_label, self.base_path_layout)
 
         # 保存路径模板
         self.path_template_label = QLabel("具体文件路径:")
         self.path_template_input = QLineEdit()
         self.path_template_input.setText(self.config.path_template)
         self.path_template_input.textChanged.connect(self.set_path_template)
-        self.form_layout.addRow(self.path_template_label, self.path_template_input)
+        self.home_form_layout.addRow(self.path_template_label, self.path_template_input)
 
         # 日期格式
         self.date_format_label = QLabel("分类日期格式:")
         self.date_format_input = QLineEdit()
         self.date_format_input.setText(self.config.date_format)
         self.date_format_input.textChanged.connect(self.set_date_format)
-        self.form_layout.addRow(self.date_format_label, self.date_format_input)
+        self.home_form_layout.addRow(self.date_format_label, self.date_format_input)
 
         # 白名单
         self.whitelist_label = QLabel("监听白名单:")
@@ -134,12 +135,12 @@ class MainWindow(QWidget):
 
         self.whitelist_layout.addWidget(self.whitelist)
         self.whitelist_layout.addWidget(self.add_whitelist_button)
-        self.form_layout.addRow(self.whitelist_label, self.whitelist_layout)
+        self.home_form_layout.addRow(self.whitelist_label, self.whitelist_layout)
 
         # 保存按钮
         self.save_button = QPushButton("保存全部设置")
         self.save_button.clicked.connect(self.save_config)
-        self.form_layout.addWidget(self.save_button)
+        self.home_form_layout.addWidget(self.save_button)
 
         # 实时生效的设置
         self.real_time_layout = QHBoxLayout()
@@ -173,7 +174,7 @@ class MainWindow(QWidget):
         self.real_time_layout.addWidget(self.autostart_checkbox)
         self.real_time_layout.addWidget(self.start_watching_checkbox)
         self.real_time_layout.addWidget(self.save_thumb_checkbox)
-        self.form_layout.addRow(self.real_time_layout)
+        self.home_form_layout.addRow(self.real_time_layout)
 
         # 动作按钮
         self.actions_layout = QHBoxLayout()
@@ -187,7 +188,7 @@ class MainWindow(QWidget):
         self.actions_layout.addWidget(self.status_label)
         self.actions_layout.addWidget(self.start_button)
         self.actions_layout.addWidget(self.stop_button)
-        self.form_layout.addRow(self.actions_layout)
+        self.home_form_layout.addRow(self.actions_layout)
 
         # 设置标签最小宽度
         self.base_path_label.setMinimumWidth(50)
@@ -196,13 +197,33 @@ class MainWindow(QWidget):
         self.whitelist_label.setMinimumWidth(50)
 
         self.tab_home = QWidget()
-        self.tab_home.setLayout(self.form_layout)
+        self.tab_home.setLayout(self.home_form_layout)
         self.tabs.addTab(self.tab_home, "设置")
 
     def setup_tools_tab(self):
+        self.tools_layout = QVBoxLayout()
+
+        # 批量导出好友
+        self.export_friends_button = QPushButton("导出好友列表")
+        self.export_friends_button.clicked.connect(self.export_friends)
+        self.tools_layout.addWidget(self.export_friends_button)
+
         self.tab_tools = QWidget()
-        self.tab_tools.setLayout(QVBoxLayout())
+        self.tab_tools.setLayout(self.tools_layout)
         self.tabs.addTab(self.tab_tools, "工具")
+
+    def export_friends(self):
+        file_path, _ = QFileDialog.getSaveFileName(
+            self, "保存好友列表", "friends.xlsx", "Excel 文件 (*.xlsx)"
+        )
+        if not file_path:
+            return
+        try:
+            save_dict_to_excel(self.user_list, file_path)
+            # 导出成功提示
+            QMessageBox.information(self, "提示", "导出成功！")
+        except Exception as e:
+            QMessageBox.critical(self, "错误", f"导出失败：{e}")
 
     def enable_autostart(self):
         AutoRun(switch="open", key_name="MsgAttachWatcher")
