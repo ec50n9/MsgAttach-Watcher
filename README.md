@@ -1,4 +1,4 @@
-# MsgAttach Aides
+# WX MsgAttach Aides
 
 一个可以监听微信 MsgAttach 文件夹并自动解码保存图片的 Python 命令行工具。部分实现参考自: [PyWxDump](https://github.com/xaoyaoo/PyWxDump)
 
