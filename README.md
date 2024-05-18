@@ -1,4 +1,4 @@
-# MsgAttach Watcher
+# MsgAttach Aides
 
 一个可以监听微信 MsgAttach 文件夹并自动解码保存图片的 Python 命令行工具。部分实现参考自: [PyWxDump](https://github.com/xaoyaoo/PyWxDump)
 
@@ -15,23 +15,31 @@
 
 ## 开发计划
 
-- [ ] 白名单功能
-- [ ] 开机自启动
-- [ ] 缩略图监听
+- [x] 白名单功能
+- [x] 开机自启动
+- [x] 缩略图监听
 - [ ] 联网更新 version_list.json
 - [ ] 日志功能
 
 ## 如何使用
 
+### 从打包好的 exe 文件运行
+
+打开 [发行列表](https://github.com/ec50n9/MsgAttach-Watcher/releases) 下载最新版本的 exe 文件，双击运行即可。
+
+### 从源代码运行
+
 1. 下载并安装 Python 3.x
-2. 下载本项目代码并解压
-3. 打开命令提示符，进入项目目录
+2. 克隆本项目到本地
+3. 打开命令行终端，进入项目目录
 4. 运行 `pip install -r requirements.txt` 安装依赖
-5. 修改 `main.py` 中的 `OUTPUT_PATH_TEMPLATE` 变量，指定图片保存路径
-6. 运行 `main.py` 启动程序
+5. 运行 `python qt_main.py` 启动程序
+
+更进一步的，如果你想自己打包成 `exe` 的话：
 
 ```bash
-python main.py
+pip install pyinstaller
+pyinstaller -F -w qt_main.py
 ```
 
 ## OUTPUT_PATH_TEMPLATE 模板变量说明
@@ -43,6 +51,7 @@ python main.py
 | `contact_user_name` | 图片保存的联系人名称 |
 | `contact_alias` | 图片保存的联系人微信号 |
 | `file_origin_name` | 图片保存的原始文件名 |
+| `file_type` | 图片类型：IMAGE(原图)、THUMB(缩略图) |
 | `file_base_name` | 图片保存的基础文件名 |
 | `file_wx_time` | 图片保存的微信消息时间(仅年和月, 且不可格式化) |
 | `file_edit_time` | 图片保存的编辑时间(精确到秒, 可通过 EDIT_TIME_FORMAT 变量格式化) |
@@ -78,45 +87,7 @@ Msg/MicroMsg.db 解密出来后，其中的 Contact 表即为联系人列表，�
 4. 转换 wxid 为 md5 得到文件夹名称
 5. 监听文件夹变化，当有新的文件到达时，读取dat文件内容并解密保存为图片。
 
-## Disclaimer (VERY VERY VERY IMPORTANT ! ! ! ! ! !)
-
-### 1. Purpose of use
-
-* This project is only for learning and communication purposes, **please do not use it for illegal purposes**, **please
-  do not use it for illegal purposes**, **please do not use it for illegal purposes
-  **, otherwise the consequences will be borne by yourself.
-* Users understand and agree that any violation of laws and regulations, infringement of the legitimate rights and interests of others, is unrelated to this project and its developers, and the consequences are borne by the user themselves.
-
-### 2. Usage Period
-
-* You should delete the source code and (compiled) program of this project within 24 hours of downloading, saving, compiling, and using it; any use beyond this period is not related to this project or its developer.
-
-### 3. Operation specifications
-
-* This project only allows backup and viewing of the database under authorization. It is strictly prohibited for illegal purposes, otherwise all related responsibilities will be borne by the user. Any legal liability incurred by the user due to violation of this regulation will be borne by the user, and is unrelated to this project and its developer.
-* It is strictly prohibited to use it to steal others' privacy. Otherwise, all relevant responsibilities shall be borne by yourself.
-* It is strictly prohibited to conduct secondary development, otherwise all related responsibilities shall be borne by yourself.
-
-### 4. Acceptance of Disclaimer
-
-* Downloading, saving, further browsing the source code, or downloading, installing, compiling, and using this program indicates that you agree with this warning and promise to abide by it;
-
-### 5. Forbidden for illegal testing or penetration
-
-* It is prohibited to use the relevant technologies of this project to engage in illegal testing or penetration, and it is prohibited to use the relevant codes or related technologies of this project to engage in any illegal work. Any adverse consequences arising therefrom are not related to this project and its developers.
-* Any resulting adverse consequences, including but not limited to data leakage, system failure, and privacy infringement, are not related to this project or its developers and are the responsibility of the user.
-
-### 6. Modification of disclaimer
-
-* This disclaimer may be modified and adjusted based on the project's operating conditions and changes in laws and regulations. Users should regularly check this page for the latest version of the disclaimer, and should comply with the latest version of the disclaimer when using this project.
-
-### 7. Others
-
-* In addition to the provisions of this disclaimer, users should comply with relevant laws, regulations, and ethical norms during the use of this project. The project and its developers will not be held responsible for any disputes or losses caused by users' violation of relevant regulations.
-
-* Users are requested to carefully read and understand all contents of this disclaimer, and ensure that they strictly comply with relevant regulations when using this project.
-
-## Ⅳ. 免责声明（非常重要！！！！！！！）
+## 免责声明（非常重要！！！！！！！）
 
 ### 1. 使用目的
 

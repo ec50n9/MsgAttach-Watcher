@@ -43,7 +43,7 @@ class MainWindow(QWidget):
         self.on_stop_watching = on_stop_watching
 
         self.setGeometry(300, 300, 600, 300)
-        self.setWindowTitle("MsgAttach Watcher")
+        self.setWindowTitle("MsgAttach Aides")
         self.initTary()
         self.setup_ui()
 
