@@ -124,9 +124,7 @@ def init_wx_info():
         for contact in contact_list
     }
 
-    msg_attach_path = os.path.join(wx_file_path, "FileStorage", "MsgAttach")
-
-    return wx_name, msg_attach_path, md5_user_dict
+    return wx_name, wx_file_path, md5_user_dict
 
 
 def main(wx_name, msg_attach_path, md5_user_dict):
@@ -191,7 +189,10 @@ class WaitForWechatStartWorker(QThread):
             for process in psutil.process_iter(["name", "exe", "pid", "cmdline"]):
                 if process.name() == "WeChat.exe":
                     # 初始化微信信息
-                    wx_name, msg_attach_path, md5_user_dict = init_wx_info()
+                    wx_name, wx_file_path, md5_user_dict = init_wx_info()
+                    msg_attach_path = os.path.join(
+                        wx_file_path, "FileStorage", "MsgAttach"
+                    )
                     if msg_attach_path is not None:
                         self.finished.emit(wx_name, msg_attach_path, md5_user_dict)
                         return
