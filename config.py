@@ -25,6 +25,10 @@ class Config:
     whitelist: List[User] = field(default_factory=list)
     start_watching: bool = False
     save_thumb: bool = True
+    is_file_redict: bool = False
+    file_redict_path: str = ""
+    is_video_redict: bool = False
+    video_redict_path: str = ""
 
     @classmethod
     def from_dict(cls, config_dict: dict):

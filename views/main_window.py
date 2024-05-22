@@ -102,7 +102,7 @@ class MainWindow(QWidget):
 
         self.base_path_button = QPushButton("选择路径")
         self.base_path_button.setToolTip("选择要转换的图片文件夹")
-        self.base_path_button.clicked.connect(self.choose_folder)
+        self.base_path_button.clicked.connect(self.choose_base_path_folder)
 
         self.base_path_layout.addWidget(self.base_path_input)
         self.base_path_layout.addWidget(self.base_path_button)
@@ -136,6 +136,78 @@ class MainWindow(QWidget):
         self.whitelist_layout.addWidget(self.whitelist)
         self.whitelist_layout.addWidget(self.add_whitelist_button)
         self.home_form_layout.addRow(self.whitelist_label, self.whitelist_layout)
+
+        # 重定向文件
+        self.watch_file_label = QLabel("文件重定向:")
+
+        self.watch_file_layout = QHBoxLayout()
+        self.watch_file_layout.setSpacing(10)
+
+        self.watch_file_checkbox = QCheckBox()
+        self.watch_file_checkbox.setChecked(self.config.is_file_redict)
+
+        self.watch_file_input = QLineEdit()
+        self.watch_file_input.setText(self.config.file_redict_path)
+        self.watch_file_input.setEnabled(self.config.is_file_redict)
+
+        self.watch_file_button = QPushButton("选择文件夹")
+        self.watch_file_button.setToolTip("选择要重定向的文件夹")
+        self.watch_file_button.setEnabled(self.config.is_file_redict)
+        self.watch_file_button.clicked.connect(self.choose_file_redict_folder)
+
+        def handle_watch_file_checkbox_state_changed(state):
+            is_checked = self.watch_file_checkbox.isChecked()
+            self.config.is_file_redict = is_checked
+            self.watch_file_input.setEnabled(is_checked)
+            self.watch_file_button.setEnabled(is_checked)
+
+            if is_checked and not self.watch_file_input.text():
+                self.choose_file_redict_folder()
+
+        self.watch_file_checkbox.stateChanged.connect(
+            handle_watch_file_checkbox_state_changed
+        )
+
+        self.watch_file_layout.addWidget(self.watch_file_checkbox)
+        self.watch_file_layout.addWidget(self.watch_file_input)
+        self.watch_file_layout.addWidget(self.watch_file_button)
+        self.home_form_layout.addRow(self.watch_file_label, self.watch_file_layout)
+
+        # 视频重定向
+        self.video_redict_label = QLabel("视频重定向:")
+
+        self.video_redict_layout = QHBoxLayout()
+        self.video_redict_layout.setSpacing(10)
+
+        self.video_redict_checkbox = QCheckBox()
+        self.video_redict_checkbox.setChecked(self.config.is_video_redict)
+
+        self.video_redict_input = QLineEdit()
+        self.video_redict_input.setText(self.config.video_redict_path)
+        self.video_redict_input.setEnabled(self.config.is_video_redict)
+
+        self.video_redict_button = QPushButton("选择文件夹")
+        self.video_redict_button.setToolTip("选择要重定向的视频文件夹")
+        self.video_redict_button.setEnabled(self.config.is_video_redict)
+        self.video_redict_button.clicked.connect(self.choose_video_redict_folder)
+
+        def handle_video_redict_checkbox_state_changed(state):
+            is_checked = self.video_redict_checkbox.isChecked()
+            self.config.is_video_redict = is_checked
+            self.video_redict_input.setEnabled(is_checked)
+            self.video_redict_button.setEnabled(is_checked)
+
+            if is_checked and not self.video_redict_input.text():
+                self.choose_video_redict_folder()
+
+        self.video_redict_checkbox.stateChanged.connect(
+            handle_video_redict_checkbox_state_changed
+        )
+
+        self.video_redict_layout.addWidget(self.video_redict_checkbox)
+        self.video_redict_layout.addWidget(self.video_redict_input)
+        self.video_redict_layout.addWidget(self.video_redict_button)
+        self.home_form_layout.addRow(self.video_redict_label, self.video_redict_layout)
 
         # 保存按钮
         self.save_button = QPushButton("保存全部设置")
@@ -236,13 +308,29 @@ class MainWindow(QWidget):
     def set_base_path(self, text):
         self.config.base_path = text
 
-    def choose_folder(self):
+    def choose_base_path_folder(self):
         folder_path = QFileDialog.getExistingDirectory(
             self, "选择文件夹", self.base_path_input.text()
         )
         if folder_path:
             self.set_base_path(folder_path)
             self.base_path_input.setText(folder_path)
+
+    def choose_file_redict_folder(self):
+        file_path = QFileDialog.getExistingDirectory(
+            self, "选择文件夹", self.watch_file_input.text()
+        )
+        if file_path:
+            self.config.file_redict_path = file_path
+            self.watch_file_input.setText(file_path)
+
+    def choose_video_redict_folder(self):
+        folder_path = QFileDialog.getExistingDirectory(
+            self, "选择文件夹", self.video_redict_input.text()
+        )
+        if folder_path:
+            self.config.video_redict_path = folder_path
+            self.video_redict_input.setText(folder_path)
 
     def set_path_template(self, text):
         self.config.path_template = text

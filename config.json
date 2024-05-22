@@ -4,5 +4,9 @@
     "date_format": "%Y-%m-%d",
     "whitelist": [],
     "start_watching": false,
-    "save_thumb": true
+    "save_thumb": true,
+    "is_file_redict": false,
+    "file_redict_path": "D:/other-projects/dat2jpg",
+    "is_video_redict": true,
+    "video_redict_path": "D:/other-projects/dat2jpg"
 }
