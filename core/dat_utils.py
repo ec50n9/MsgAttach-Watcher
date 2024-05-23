@@ -6,7 +6,7 @@ from typing import Dict, List
 from core.batch_decode_dat import decode_image
 
 
-def parse_path(path: str) -> Dict[str, str]:
+def parse_dat_path(path: str) -> Dict[str, str]:
     """
     解析文件路径，提取用户ID、日期和文件名
     """
@@ -44,7 +44,7 @@ def read_dat_files(
         for filename in filenames:
             if filename.endswith(".dat"):
                 file_path = os.path.join(dirpath, filename)
-                file_info = parse_path(file_path)
+                file_info = parse_dat_path(file_path)
                 if file_info and (
                     not whitelisted_md5_ids
                     or file_info.get("md5_id") in whitelisted_md5_ids

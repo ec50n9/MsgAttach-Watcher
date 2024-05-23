@@ -1,12 +1,12 @@
 {
     "base_path": "C:/Users/shell/Downloads",
-    "path_template": "{{self_wx_name}}/{{file_type}}/{{file_edit_time}}/{{contact_user_name}}/{{file_base_name}}.jpg",
+    "path_template": "ec50n9/{{file_type}}/{{file_edit_time}}/{{contact_user_name}}/{{file_base_name}}.jpg",
     "date_format": "%Y-%m-%d",
     "whitelist": [],
     "start_watching": false,
     "save_thumb": true,
-    "is_file_redict": false,
-    "file_redict_path": "D:/other-projects/dat2jpg",
+    "is_file_redict": true,
+    "file_redict_path": "C:/Users/shell/Downloads/ec50n9/File",
     "is_video_redict": true,
-    "video_redict_path": "D:/other-projects/dat2jpg"
+    "video_redict_path": "C:/Users/shell/Downloads/ec50n9/Video"
 }

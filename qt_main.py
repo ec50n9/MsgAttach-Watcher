@@ -127,7 +127,7 @@ def init_wx_info():
     return wx_name, wx_file_path, md5_user_dict
 
 
-def main(wx_name, msg_attach_path, md5_user_dict):
+def main(wx_name, wx_file_path, md5_user_dict):
     # 加载配置
     config_manager = ConfigManager("./config.json")
 
@@ -135,7 +135,7 @@ def main(wx_name, msg_attach_path, md5_user_dict):
     stop_watching = None
 
     def start_watching_wrapper():
-        nonlocal is_watching, stop_watching, wx_name, msg_attach_path, md5_user_dict, config_manager
+        nonlocal is_watching, stop_watching, wx_name, wx_file_path, md5_user_dict, config_manager
         base_path = os.path.normpath(config_manager.config.base_path)
         if not os.path.exists(base_path):
             os.makedirs(base_path)
@@ -151,7 +151,7 @@ def main(wx_name, msg_attach_path, md5_user_dict):
         is_watching = True
         stop_watching = watch_dat_files(
             config=config_manager.config,
-            root_dir=msg_attach_path,
+            root_dir=wx_file_path,
             whitelisted_users=user_name_in_whitelist,
             handle_dat_file=lambda file_info: handle_dat_file(
                 file_info=file_info,
@@ -190,11 +190,8 @@ class WaitForWechatStartWorker(QThread):
                 if process.name() == "WeChat.exe":
                     # 初始化微信信息
                     wx_name, wx_file_path, md5_user_dict = init_wx_info()
-                    msg_attach_path = os.path.join(
-                        wx_file_path, "FileStorage", "MsgAttach"
-                    )
-                    if msg_attach_path is not None:
-                        self.finished.emit(wx_name, msg_attach_path, md5_user_dict)
+                    if wx_file_path is not None:
+                        self.finished.emit(wx_name, wx_file_path, md5_user_dict)
                         return
                     else:
                         print("微信信息获取失败")
@@ -219,7 +216,7 @@ def app():
         waiting_window.close()
         main(
             wx_name=wx_name,
-            msg_attach_path=msg_attach_path,
+            wx_file_path=msg_attach_path,
             md5_user_dict=md5_user_dict,
         )
 
